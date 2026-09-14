@@ -1,0 +1,536 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bitácora · Soporte técnico</title>
+<style>
+  :root{
+    --bg: #EEF1F5;
+    --surface: #FFFFFF;
+    --surface-alt: #F5F7FA;
+    --border: #DCE2E9;
+    --text: #1B2430;
+    --text-muted: #6B7686;
+    --accent: #2E6F6B;
+    --accent-dark: #204E4B;
+    --accent-soft: #E4EEED;
+    --danger: #B3261E;
+    --danger-soft: #F7E9E8;
+    --radius: 10px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 48px;
+  }
+  .wrap{ max-width: 640px; margin: 0 auto; padding: 20px 16px 0; }
+
+  header{ display:flex; align-items:flex-start; justify-content:space-between; margin-bottom: 18px; }
+  header h1{ font-size: 22px; margin: 0 0 2px; letter-spacing: -0.01em; }
+  header p{ margin:0; color: var(--text-muted); font-size: 13px; }
+  .hdr-actions{ display:flex; align-items:center; gap:10px; }
+  .sync-dot{ width:9px; height:9px; border-radius:50%; background:#9AA5B1; flex-shrink:0; }
+  .sync-dot[data-state="ok"]{ background:#2E8B57; }
+  .sync-dot[data-state="pending"]{ background:#C08A1E; }
+  .sync-dot[data-state="off"]{ background:#9AA5B1; }
+  .icon-btn{
+    border:1px solid var(--border); background: var(--surface); color: var(--text);
+    width:36px; height:36px; border-radius: var(--radius); cursor:pointer;
+    display:flex; align-items:center; justify-content:center; font-size:16px;
+  }
+  .icon-btn:hover{ background: var(--surface-alt); }
+
+  .card{
+    background: var(--surface); border:1px solid var(--border); border-radius: var(--radius);
+    padding: 16px; margin-bottom: 16px;
+  }
+  .card h2{ font-size:14px; margin: 0 0 12px; color: var(--text-muted); font-weight:600; }
+
+  label{ display:block; font-size:12.5px; color: var(--text-muted); margin-bottom:4px; }
+  .field{ margin-bottom:12px; }
+  input[type=text], input[type=number], input[type=datetime-local], input[type=password], select, textarea{
+    width:100%; padding:10px 11px; border:1px solid var(--border); border-radius:8px;
+    font-size:14.5px; font-family: inherit; background: var(--surface-alt); color: var(--text);
+  }
+  textarea{ min-height:60px; resize:vertical; }
+  input:focus, select:focus, textarea:focus{ outline:2px solid var(--accent); outline-offset:1px; background: var(--surface); }
+  .row2{ display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+
+  .btn{
+    border:none; border-radius:8px; padding:11px 16px; font-size:14.5px; font-weight:600;
+    cursor:pointer; font-family: inherit;
+  }
+  .btn-primary{ background: var(--accent); color:#fff; width:100%; }
+  .btn-primary:hover{ background: var(--accent-dark); }
+  .btn-primary:disabled{ background:#A8B4B3; cursor:default; }
+  .btn-ghost{ background:transparent; color: var(--accent-dark); border:1px solid var(--border); }
+  .btn-ghost:hover{ background: var(--surface-alt); }
+  .btn-danger-text{ background:none; border:none; color: var(--text-muted); cursor:pointer; font-size:13px; padding:4px 6px;}
+  .btn-danger-text:hover{ color: var(--danger); }
+
+  .stats{ font-size:13px; color: var(--text-muted); margin: 0 0 10px; }
+  .stats b{ color: var(--text); }
+
+  .filters{ display:flex; gap:8px; margin-bottom:12px; }
+  .filters input{ flex:1; }
+  .filters select{ width:auto; flex-shrink:0; max-width:130px; }
+  .toggle-group{ display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; }
+  .toggle-group button{
+    border:none; background: var(--surface); padding:8px 12px; font-size:13px; cursor:pointer; color: var(--text-muted);
+  }
+  .toggle-group button.active{ background: var(--accent); color:#fff; }
+
+  .date-group{ margin-bottom:6px; }
+  .date-heading{ font-size:12.5px; color: var(--text-muted); margin: 14px 2px 6px; text-transform: capitalize; }
+  .entry{
+    background: var(--surface); border:1px solid var(--border); border-radius: var(--radius);
+    padding: 11px 13px; margin-bottom:8px; display:flex; gap:10px; align-items:flex-start;
+  }
+  .entry .time{ font-family: var(--mono); font-size:12.5px; color: var(--text-muted); padding-top:2px; flex-shrink:0; width:44px; }
+  .entry .body{ flex:1; min-width:0; }
+  .entry .top-line{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; margin-bottom:3px; }
+  .badge{
+    font-size:11px; font-weight:600; padding:2px 8px; border-radius:20px; color:#fff; white-space:nowrap;
+  }
+  .client{ font-size:13.5px; font-weight:600; }
+  .desc{ font-size:13.5px; color: var(--text); margin: 2px 0 0; line-height:1.4; word-break: break-word; }
+  .meta-line{ font-size:12px; color: var(--text-muted); margin-top:4px; }
+  .entry .pending-mark{ color:#C08A1E; }
+  .entry .del{ flex-shrink:0; }
+
+  .empty{ text-align:center; color: var(--text-muted); font-size:13.5px; padding: 30px 10px; }
+
+  .modal-bg{
+    position:fixed; inset:0; background:rgba(27,36,48,0.45); display:none;
+    align-items:flex-end; justify-content:center; z-index:50;
+  }
+  .modal-bg.show{ display:flex; }
+  .modal{
+    background: var(--surface); width:100%; max-width:640px; border-radius: 14px 14px 0 0;
+    padding: 20px 18px 24px; max-height:88vh; overflow-y:auto;
+  }
+  @media (min-width: 700px){
+    .modal-bg{ align-items:center; }
+    .modal{ border-radius: 14px; max-width:480px; }
+  }
+  .modal h2{ margin:0 0 4px; font-size:17px; }
+  .modal .help{ font-size:12.5px; color: var(--text-muted); margin:0 0 16px; line-height:1.5; }
+  .modal .actions{ display:flex; gap:10px; margin-top:14px; }
+  .modal .actions .btn{ flex:1; }
+  .banner{
+    font-size:12.5px; background: var(--accent-soft); color: var(--accent-dark); border-radius:8px;
+    padding:9px 11px; margin-bottom:14px; line-height:1.4;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Bitácora</h1>
+      <p>Registro de soporte técnico</p>
+    </div>
+    <div class="hdr-actions">
+      <span class="sync-dot" id="syncDot" title="Estado de sincronización"></span>
+      <button class="icon-btn" id="btnSync" title="Sincronizar ahora">⟳</button>
+      <button class="icon-btn" id="btnSettings" title="Configuración">⚙</button>
+    </div>
+  </header>
+
+  <div class="card">
+    <h2>Nueva acción</h2>
+    <div class="field">
+      <label>Fecha y hora</label>
+      <input type="datetime-local" id="fDatetime">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Categoría</label>
+        <select id="fCategory">
+          <option>Soporte remoto</option>
+          <option>Instalación / Configuración</option>
+          <option>Mantenimiento</option>
+          <option>Consulta rápida</option>
+          <option>Incidencia de red</option>
+          <option value="__otro">Otra…</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Tiempo invertido (min)</label>
+        <input type="number" id="fMinutes" min="0" step="5" placeholder="15">
+      </div>
+    </div>
+    <div class="field" id="wrapCustomCat" style="display:none">
+      <label>Especifica la categoría</label>
+      <input type="text" id="fCategoryOther" placeholder="Ej. Capacitación">
+    </div>
+    <div class="field">
+      <label>Cliente / usuario atendido</label>
+      <input type="text" id="fClient" placeholder="Ej. Ana Pérez — Contabilidad">
+    </div>
+    <div class="field">
+      <label>Descripción de la acción</label>
+      <textarea id="fDesc" placeholder="Qué se hizo, ej: reinicio de impresora de red y reconfiguración de driver"></textarea>
+    </div>
+    <div class="field">
+      <label>Referencia / ticket (opcional)</label>
+      <input type="text" id="fRef" placeholder="Ej. INC-4021 — vacío si no aplica">
+    </div>
+    <button class="btn btn-primary" id="btnSave">Guardar acción</button>
+  </div>
+
+  <div class="stats" id="stats"></div>
+
+  <div class="filters">
+    <input type="text" id="fSearch" placeholder="Buscar cliente o descripción…">
+    <div class="toggle-group" id="viewToggle">
+      <button data-v="hoy" class="active">Hoy</button>
+      <button data-v="todos">Todos</button>
+    </div>
+  </div>
+
+  <div id="list"></div>
+
+  <div style="text-align:center; margin-top:10px;">
+    <button class="btn btn-ghost" id="btnExport">Exportar CSV</button>
+  </div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2>Conectar con GitHub</h2>
+    <p class="help">
+      Los registros se guardan como un archivo JSON dentro de un repositorio tuyo, usando la API de GitHub.
+      Crea un <b>token de acceso personal (fine-grained)</b> limitado solo a ese repositorio, con permiso
+      <b>Contents: Read and write</b>. El token se guarda únicamente en este navegador (localStorage),
+      nunca se envía a ningún otro sitio. Si usas una PC compartida, ciérralo con "Borrar token" al terminar.
+    </p>
+    <div class="field">
+      <label>Usuario u organización</label>
+      <input type="text" id="cfgOwner" placeholder="tu-usuario">
+    </div>
+    <div class="field">
+      <label>Repositorio</label>
+      <input type="text" id="cfgRepo" placeholder="bitacora-soporte">
+    </div>
+    <div class="row2">
+      <div class="field">
+        <label>Rama</label>
+        <input type="text" id="cfgBranch" placeholder="main">
+      </div>
+      <div class="field">
+        <label>Ruta del archivo</label>
+        <input type="text" id="cfgPath" placeholder="data/bitacora.json">
+      </div>
+    </div>
+    <div class="field">
+      <label>Token de acceso personal</label>
+      <input type="password" id="cfgToken" placeholder="github_pat_…">
+    </div>
+    <div class="actions">
+      <button class="btn btn-ghost" id="btnCfgClear">Borrar token</button>
+      <button class="btn btn-primary" id="btnCfgSave">Guardar y conectar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const LS_ENTRIES = 'bitacora_entries_v1';
+const LS_CONFIG  = 'bitacora_config_v1';
+const LS_SHA     = 'bitacora_sha_v1';
+
+const catColors = {
+  'Soporte remoto': '#2E6F6B',
+  'Instalación / Configuración': '#3B5BA9',
+  'Mantenimiento': '#8A5A2B',
+  'Consulta rápida': '#6B5B95',
+  'Incidencia de red': '#B3261E',
+};
+function colorFor(cat){ return catColors[cat] || '#5B6674'; }
+
+function loadEntries(){ try{ return JSON.parse(localStorage.getItem(LS_ENTRIES)) || []; }catch(e){ return []; } }
+function saveEntriesLocal(entries){ localStorage.setItem(LS_ENTRIES, JSON.stringify(entries)); }
+function loadConfig(){ try{ return JSON.parse(localStorage.getItem(LS_CONFIG)); }catch(e){ return null; } }
+function saveConfig(cfg){ localStorage.setItem(LS_CONFIG, JSON.stringify(cfg)); }
+
+let entries = loadEntries();
+let config = loadConfig();
+let remoteSha = localStorage.getItem(LS_SHA) || null;
+let view = 'hoy';
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,8); }
+
+function utf8_to_b64(str){ return btoa(unescape(encodeURIComponent(str))); }
+function b64_to_utf8(str){ return decodeURIComponent(escape(atob(str))); }
+
+function setSyncState(state){
+  document.getElementById('syncDot').dataset.state = state;
+}
+
+function hasConfig(){ return config && config.owner && config.repo && config.token; }
+
+function ghHeaders(){
+  return {
+    'Authorization': 'Bearer ' + config.token,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+function ghUrl(){
+  return `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${encodeURIComponent(config.path)}`;
+}
+
+async function ghGetRemote(){
+  const branch = config.branch || 'main';
+  const res = await fetch(ghUrl() + '?ref=' + encodeURIComponent(branch), { headers: ghHeaders() });
+  if(res.status === 404){ return { entries: [], sha: null }; }
+  if(!res.ok) throw new Error('GET ' + res.status);
+  const json = await res.json();
+  const text = b64_to_utf8(json.content.replace(/\n/g,''));
+  let remoteEntries = [];
+  try{ remoteEntries = JSON.parse(text); }catch(e){ remoteEntries = []; }
+  return { entries: remoteEntries, sha: json.sha };
+}
+
+async function ghPutRemote(newEntries, sha, message){
+  const branch = config.branch || 'main';
+  const body = {
+    message: message || 'Actualiza bitácora',
+    content: utf8_to_b64(JSON.stringify(newEntries, null, 2)),
+    branch
+  };
+  if(sha) body.sha = sha;
+  const res = await fetch(ghUrl(), { method:'PUT', headers: {...ghHeaders(), 'Content-Type':'application/json'}, body: JSON.stringify(body) });
+  if(!res.ok){
+    const t = await res.text();
+    throw new Error('PUT ' + res.status + ' ' + t);
+  }
+  const json = await res.json();
+  return json.content.sha;
+}
+
+function mergeEntries(local, remote){
+  const map = new Map();
+  remote.forEach(e => map.set(e.id, e));
+  local.forEach(e => { if(!map.has(e.id)) map.set(e.id, e); });
+  return Array.from(map.values()).sort((a,b) => new Date(b.datetime) - new Date(a.datetime));
+}
+
+async function syncNow(){
+  if(!hasConfig()){ setSyncState('off'); return; }
+  setSyncState('pending');
+  try{
+    const remote = await ghGetRemote();
+    const merged = mergeEntries(entries, remote.entries);
+    const pending = entries.filter(e => !e.synced);
+    if(pending.length > 0 || remote.entries.length !== merged.length){
+      const toPush = merged.map(e => ({...e, synced: true}));
+      const sha = await ghPutRemote(toPush, remote.sha, `Bitácora: ${pending.length} acción(es) nueva(s)`);
+      remoteSha = sha;
+      localStorage.setItem(LS_SHA, sha);
+      entries = toPush;
+    } else {
+      entries = merged.map(e => ({...e, synced: true}));
+      remoteSha = remote.sha;
+      localStorage.setItem(LS_SHA, remote.sha || '');
+    }
+    saveEntriesLocal(entries);
+    setSyncState('ok');
+    render();
+  }catch(err){
+    console.error(err);
+    setSyncState('pending');
+  }
+}
+
+function fmtDate(d){
+  return d.toLocaleDateString('es', { weekday:'long', day:'numeric', month:'short' });
+}
+function isToday(dateObj){
+  const now = new Date();
+  return dateObj.toDateString() === now.toDateString();
+}
+
+function render(){
+  // stats
+  const today = entries.filter(e => isToday(new Date(e.datetime)));
+  const totalMin = today.reduce((s,e) => s + (Number(e.minutes)||0), 0);
+  const h = Math.floor(totalMin/60), m = totalMin%60;
+  document.getElementById('stats').innerHTML =
+    `Hoy: <b>${today.length}</b> acción(es) · <b>${h>0? h+'h ':''}${m}m</b> registrados`;
+
+  const search = document.getElementById('fSearch').value.trim().toLowerCase();
+  let list = entries.slice().sort((a,b) => new Date(b.datetime) - new Date(a.datetime));
+  if(view === 'hoy') list = list.filter(e => isToday(new Date(e.datetime)));
+  if(search) list = list.filter(e =>
+    (e.client||'').toLowerCase().includes(search) || (e.description||'').toLowerCase().includes(search));
+
+  const container = document.getElementById('list');
+  if(list.length === 0){
+    container.innerHTML = '<div class="empty">Sin acciones registradas todavía. Usa el formulario de arriba para anotar la primera.</div>';
+    return;
+  }
+
+  let html = '';
+  let lastDay = null;
+  list.forEach(e => {
+    const d = new Date(e.datetime);
+    const dayKey = d.toDateString();
+    if(dayKey !== lastDay){
+      html += `<div class="date-heading">${fmtDate(d)}</div>`;
+      lastDay = dayKey;
+    }
+    const time = d.toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' });
+    html += `
+      <div class="entry" data-id="${e.id}">
+        <div class="time">${time}</div>
+        <div class="body">
+          <div class="top-line">
+            <span class="badge" style="background:${colorFor(e.category)}">${e.category}</span>
+            <span class="client">${escapeHtml(e.client || 'Sin nombre')}</span>
+          </div>
+          <p class="desc">${escapeHtml(e.description || '')}</p>
+          <div class="meta-line">
+            ${e.minutes ? e.minutes + ' min' : ''}${e.ref ? ' · ' + escapeHtml(e.ref) : ''}${!e.synced ? ' · <span class="pending-mark">pendiente de sincronizar</span>' : ''}
+          </div>
+        </div>
+        <button class="btn-danger-text del" data-id="${e.id}" title="Eliminar">✕</button>
+      </div>`;
+  });
+  container.innerHTML = html;
+
+  container.querySelectorAll('.del').forEach(btn => {
+    btn.addEventListener('click', () => deleteEntry(btn.dataset.id));
+  });
+}
+
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function deleteEntry(id){
+  entries = entries.filter(e => e.id !== id);
+  saveEntriesLocal(entries);
+  render();
+  if(hasConfig()) syncNow();
+}
+
+function setDefaultDatetime(){
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('fDatetime').value = now.toISOString().slice(0,16);
+}
+
+document.getElementById('fCategory').addEventListener('change', (e) => {
+  document.getElementById('wrapCustomCat').style.display = e.target.value === '__otro' ? 'block' : 'none';
+});
+
+document.getElementById('btnSave').addEventListener('click', () => {
+  const catSel = document.getElementById('fCategory').value;
+  const category = catSel === '__otro'
+    ? (document.getElementById('fCategoryOther').value.trim() || 'Otro')
+    : catSel;
+  const dtVal = document.getElementById('fDatetime').value;
+  const entry = {
+    id: uid(),
+    datetime: dtVal ? new Date(dtVal).toISOString() : new Date().toISOString(),
+    category,
+    client: document.getElementById('fClient').value.trim(),
+    description: document.getElementById('fDesc').value.trim(),
+    minutes: document.getElementById('fMinutes').value || '',
+    ref: document.getElementById('fRef').value.trim(),
+    synced: false
+  };
+  if(!entry.description){ document.getElementById('fDesc').focus(); return; }
+
+  entries.push(entry);
+  saveEntriesLocal(entries);
+
+  document.getElementById('fClient').value = '';
+  document.getElementById('fDesc').value = '';
+  document.getElementById('fMinutes').value = '';
+  document.getElementById('fRef').value = '';
+  document.getElementById('fCategoryOther').value = '';
+  setDefaultDatetime();
+
+  render();
+  if(hasConfig()) syncNow(); else setSyncState('off');
+});
+
+document.getElementById('fSearch').addEventListener('input', render);
+document.querySelectorAll('#viewToggle button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    view = btn.dataset.v;
+    document.querySelectorAll('#viewToggle button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  });
+});
+
+document.getElementById('btnExport').addEventListener('click', () => {
+  const rows = [['Fecha','Hora','Categoría','Cliente','Descripción','Minutos','Referencia']];
+  entries.slice().sort((a,b) => new Date(a.datetime)-new Date(b.datetime)).forEach(e => {
+    const d = new Date(e.datetime);
+    rows.push([
+      d.toLocaleDateString('es'), d.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}),
+      e.category, e.client, e.description, e.minutes, e.ref
+    ]);
+  });
+  const csv = rows.map(r => r.map(v => `"${String(v||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `bitacora_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+});
+
+document.getElementById('btnSync').addEventListener('click', syncNow);
+
+document.getElementById('btnSettings').addEventListener('click', () => {
+  if(config){
+    document.getElementById('cfgOwner').value = config.owner || '';
+    document.getElementById('cfgRepo').value = config.repo || '';
+    document.getElementById('cfgBranch').value = config.branch || 'main';
+    document.getElementById('cfgPath').value = config.path || 'data/bitacora.json';
+    document.getElementById('cfgToken').value = config.token || '';
+  } else {
+    document.getElementById('cfgBranch').value = 'main';
+    document.getElementById('cfgPath').value = 'data/bitacora.json';
+  }
+  document.getElementById('modalBg').classList.add('show');
+});
+document.getElementById('modalBg').addEventListener('click', (e) => {
+  if(e.target.id === 'modalBg') document.getElementById('modalBg').classList.remove('show');
+});
+document.getElementById('btnCfgSave').addEventListener('click', () => {
+  config = {
+    owner: document.getElementById('cfgOwner').value.trim(),
+    repo: document.getElementById('cfgRepo').value.trim(),
+    branch: document.getElementById('cfgBranch').value.trim() || 'main',
+    path: document.getElementById('cfgPath').value.trim() || 'data/bitacora.json',
+    token: document.getElementById('cfgToken').value.trim()
+  };
+  saveConfig(config);
+  document.getElementById('modalBg').classList.remove('show');
+  syncNow();
+});
+document.getElementById('btnCfgClear').addEventListener('click', () => {
+  localStorage.removeItem(LS_CONFIG);
+  config = null;
+  document.getElementById('cfgToken').value = '';
+  setSyncState('off');
+});
+
+setDefaultDatetime();
+render();
+if(hasConfig()) syncNow(); else setSyncState('off');
+</script>
+</body>
+</html>
