@@ -1,5 +1,15 @@
 [
   {
+    "id": "mu4nwpde982yk5",
+    "datetime": "2026-09-16T19:50:00.000Z",
+    "category": "Incidencia de red",
+    "client": "Pamela Paniagua",
+    "description": "Reingreso a WLAN por error de conexión.\nActualización de políticas por conexión cableada.",
+    "minutes": "20",
+    "ref": "",
+    "synced": true
+  },
+  {
     "id": "mu4nerf56twy0n",
     "datetime": "2026-09-16T17:30:00.000Z",
     "category": "Soporte remoto",
