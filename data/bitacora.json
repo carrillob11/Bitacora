@@ -1,0 +1,42 @@
+[
+  {
+    "id": "mu4nerf56twy0n",
+    "datetime": "2026-09-16T17:30:00.000Z",
+    "category": "Soporte remoto",
+    "client": "CD",
+    "description": "Sesión Ordinaria 34",
+    "minutes": "90",
+    "ref": "",
+    "synced": true
+  },
+  {
+    "id": "mu4ndnphskohky",
+    "datetime": "2026-09-16T17:00:00.000Z",
+    "category": "Soporte remoto",
+    "client": "CD",
+    "description": "Preconsejo",
+    "minutes": "10",
+    "ref": "",
+    "synced": true
+  },
+  {
+    "id": "mu4ncwml7683pk",
+    "datetime": "2026-09-16T15:00:00.000Z",
+    "category": "Soporte remoto",
+    "client": "CD",
+    "description": "Preconsejo",
+    "minutes": "30",
+    "ref": "",
+    "synced": true
+  },
+  {
+    "id": "mu4nbl3ndhpe6e",
+    "datetime": "2026-09-16T14:50:00.000Z",
+    "category": "Incidencia de red",
+    "client": "Gabriela Serpas",
+    "description": "Problemas de DNS.\n\nSolución:\n-Llamada con Telco.\n-Reinicio de equipo.",
+    "minutes": "20",
+    "ref": "",
+    "synced": true
+  }
+]
