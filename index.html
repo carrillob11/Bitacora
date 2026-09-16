@@ -318,10 +318,18 @@ async function ghPutRemote(newEntries, sha, message){
 
 function mergeEntries(local, remote){
   const map = new Map();
-  remote.forEach(e => map.set(e.id, e));
-  local.forEach(e => { if(!map.has(e.id)) map.set(e.id, e); });
+  const put = (e) => {
+    const prev = map.get(e.id);
+    if(!prev){ map.set(e.id, e); return; }
+    // Una eliminación (tombstone) siempre gana sobre el registro original
+    if(e.deleted && !prev.deleted) map.set(e.id, e);
+  };
+  remote.forEach(put);
+  local.forEach(put);
   return Array.from(map.values()).sort((a,b) => new Date(b.datetime) - new Date(a.datetime));
 }
+
+function visible(list){ return list.filter(e => !e.deleted); }
 
 async function syncNow(){
   if(!hasConfig()){ setSyncState('off'); return; }
@@ -360,14 +368,14 @@ function isToday(dateObj){
 
 function render(){
   // stats
-  const today = entries.filter(e => isToday(new Date(e.datetime)));
+  const today = visible(entries).filter(e => isToday(new Date(e.datetime)));
   const totalMin = today.reduce((s,e) => s + (Number(e.minutes)||0), 0);
   const h = Math.floor(totalMin/60), m = totalMin%60;
   document.getElementById('stats').innerHTML =
     `Hoy: <b>${today.length}</b> acción(es) · <b>${h>0? h+'h ':''}${m}m</b> registrados`;
 
   const search = document.getElementById('fSearch').value.trim().toLowerCase();
-  let list = entries.slice().sort((a,b) => new Date(b.datetime) - new Date(a.datetime));
+  let list = visible(entries).sort((a,b) => new Date(b.datetime) - new Date(a.datetime));
   if(view === 'hoy') list = list.filter(e => isToday(new Date(e.datetime)));
   if(search) list = list.filter(e =>
     (e.client||'').toLowerCase().includes(search) || (e.description||'').toLowerCase().includes(search));
@@ -416,7 +424,10 @@ function escapeHtml(str){
 }
 
 function deleteEntry(id){
-  entries = entries.filter(e => e.id !== id);
+  const orig = entries.find(e => e.id === id);
+  entries = entries.map(e => e.id === id
+    ? { id: e.id, datetime: e.datetime, deleted: true, deletedAt: new Date().toISOString(), synced: false }
+    : e);
   saveEntriesLocal(entries);
   render();
   if(hasConfig()) syncNow();
@@ -476,7 +487,7 @@ document.querySelectorAll('#viewToggle button').forEach(btn => {
 
 document.getElementById('btnExport').addEventListener('click', () => {
   const rows = [['Fecha','Hora','Categoría','Cliente','Descripción','Minutos','Referencia']];
-  entries.slice().sort((a,b) => new Date(a.datetime)-new Date(b.datetime)).forEach(e => {
+  visible(entries).sort((a,b) => new Date(a.datetime)-new Date(b.datetime)).forEach(e => {
     const d = new Date(e.datetime);
     rows.push([
       d.toLocaleDateString('es'), d.toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'}),
@@ -527,6 +538,14 @@ document.getElementById('btnCfgClear').addEventListener('click', () => {
   document.getElementById('cfgToken').value = '';
   setSyncState('off');
 });
+
+// Trae los cambios cada vez que vuelves a la pestaña o abres la app en el teléfono
+document.addEventListener('visibilitychange', () => {
+  if(document.visibilityState === 'visible' && hasConfig()) syncNow();
+});
+window.addEventListener('focus', () => { if(hasConfig()) syncNow(); });
+window.addEventListener('online', () => { if(hasConfig()) syncNow(); });
+setInterval(() => { if(hasConfig() && document.visibilityState === 'visible') syncNow(); }, 5 * 60 * 1000);
 
 setDefaultDatetime();
 render();
