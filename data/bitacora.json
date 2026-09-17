@@ -1,5 +1,15 @@
 [
   {
+    "id": "mu62sbizxr3key",
+    "datetime": "2026-09-17T14:00:00.000Z",
+    "category": "Soporte remoto",
+    "client": "Salvador Quintanilla",
+    "description": "Mal funcionamiento de sistema operativo, reinicio soluciona problemas.",
+    "minutes": "15",
+    "ref": "",
+    "synced": true
+  },
+  {
     "id": "mu4nysfv9lpnti",
     "datetime": "2026-09-16T21:50:00.000Z",
     "category": "Soporte remoto",
