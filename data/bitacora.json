@@ -1,5 +1,15 @@
 [
   {
+    "id": "mu62vx8jrmbapk",
+    "datetime": "2026-09-17T15:00:00.000Z",
+    "category": "Mantenimiento",
+    "client": "CT - DE",
+    "description": "Mantenimiento de equipo de cámaras.",
+    "minutes": "60",
+    "ref": "",
+    "synced": true
+  },
+  {
     "id": "mu62sbizxr3key",
     "datetime": "2026-09-17T14:00:00.000Z",
     "category": "Soporte remoto",
