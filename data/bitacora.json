@@ -2,11 +2,8 @@
   {
     "id": "mu63c5f5q4ymca",
     "datetime": "2026-09-18T04:15:00.000Z",
-    "category": "Mantenimiento",
-    "client": "CT - DE",
-    "description": "Actualizacion de caja de cable TIGO y pantalla Huawei.",
-    "minutes": "20",
-    "ref": "",
+    "deleted": true,
+    "deletedAt": "2026-09-18T13:50:30.706Z",
     "synced": true
   },
   {
