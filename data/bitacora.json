@@ -1,5 +1,15 @@
 [
   {
+    "id": "mupnw2l47wrzmb",
+    "datetime": "2026-10-01T14:50:00.000Z",
+    "category": "Instalación / Configuración",
+    "client": "Eduardo Espinoza - UMCAD",
+    "description": "Instalación de SQL Developer y mapeo de carpeta GI.",
+    "minutes": "15",
+    "ref": "",
+    "synced": true
+  },
+  {
     "id": "mupnu7a94rdw2j",
     "datetime": "2026-10-01T14:40:00.000Z",
     "category": "Instalación / Configuración",
