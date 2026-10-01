@@ -1,5 +1,15 @@
 [
   {
+    "id": "mupnt0vnunnppv",
+    "datetime": "2026-10-01T14:30:00.000Z",
+    "category": "Instalación / Configuración",
+    "client": "Yancy Moreno - UMCAD",
+    "description": "Instalación de SQL Developer",
+    "minutes": "10",
+    "ref": "",
+    "synced": true
+  },
+  {
     "id": "mupmswpj0bqdvo",
     "datetime": "2026-10-01T14:10:00.000Z",
     "category": "Instalación / Configuración",
