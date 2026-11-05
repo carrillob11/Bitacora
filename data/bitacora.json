@@ -1,5 +1,15 @@
 [
   {
+    "id": "mw3qs11p11ei0k",
+    "datetime": "2026-11-05T16:09:00.000Z",
+    "category": "Mantenimiento",
+    "client": "Samuel Cruz",
+    "description": "Sacar de bodega y entregar bolsones y mouses HP de 0473 al 0477 y 0514 al 0518.",
+    "minutes": "10",
+    "ref": "",
+    "synced": true
+  },
+  {
     "id": "mupsdxsiixzvsa",
     "datetime": "2026-10-01T16:30:00.000Z",
     "category": "Instalación / Configuración",
