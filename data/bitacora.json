@@ -1,5 +1,15 @@
 [
   {
+    "id": "mw9h09owfcchrh",
+    "datetime": "2026-11-09T13:30:00.000Z",
+    "category": "Soporte remoto",
+    "client": "Maria Elena Alvarado - Comercio",
+    "description": "Problemas de conexión solucionados con configuración basica",
+    "minutes": "10",
+    "ref": "",
+    "synced": true
+  },
+  {
     "id": "mw3qs11p11ei0k",
     "datetime": "2026-11-05T16:09:00.000Z",
     "category": "Mantenimiento",
